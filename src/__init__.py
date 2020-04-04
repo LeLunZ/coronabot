@@ -83,9 +83,14 @@ async def update_corona():
 
     corona:list = corona
 
-    arr = corona[1:5:2]
-    arr2 = corona[6::2]
+    arr = corona[1:4:2]
+    arr2 = corona[2:5:2]
     corona_test = []
+    for arr3 in zip(arr, arr2):
+        corona_test.append(f'{arr3[0]} {arr3[1]}')
+
+    arr = corona[6:-1:2]
+    arr2 = corona[7::2]
     for arr3 in zip(arr, arr2):
         corona_test.append(f'{arr3[0]} {arr3[1]}')
 
