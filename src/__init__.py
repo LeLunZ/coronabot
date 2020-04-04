@@ -6,9 +6,11 @@ import requests
 from discord.ext.tasks import loop
 from lxml import html
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from fake_useragent import UserAgent
 
 TOKEN = ''
 
@@ -18,14 +20,16 @@ school_infos_tuple_list = []
 msg_at = ''
 msg_de = ''
 url_raw_bmbwf = 'https://www.bmbwf.gv.at'
-
+ua = UserAgent()
 
 @loop(hours=1)
 async def update_corona():
-    chrome_options = webdriver.ChromeOptions()
+    chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
+    user_agent = ua.random
+    chrome_options.add_argument(f'user-agent={user_agent}')
     driver = webdriver.Chrome(chrome_options=chrome_options)
     driver.get("https://info.gesundheitsministerium.at")
     try:
@@ -86,7 +90,9 @@ async def update_corona():
                 await channel.send(new_msg)
         msg_de = new_msg
 
-    driver.close()
+    print(msg_at)
+    print(msg_de)
+
     driver.quit()
 
 
