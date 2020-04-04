@@ -91,6 +91,7 @@ async def update_corona():
 
     arr = corona[6:-1:2]
     arr2 = corona[7::2]
+    corona_test.append('')
     for arr3 in zip(arr, arr2):
         corona_test.append(f'{arr3[0]} {arr3[1]}')
 
@@ -145,8 +146,7 @@ async def on_message(message):
                 await message.channel.send(f'{tuple[1]}: \n{url_raw_bmbwf + tuple[0]}')
 
     elif message.content.startswith('!corona'):
-        await message.channel.send(msg_at)
-        await message.channel.send(f'\n{msg_de}')
+        await message.channel.send(f'{msg_at}\n\n{msg_de}')
 
 
 @client.event
