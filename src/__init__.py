@@ -81,7 +81,16 @@ async def update_corona():
         text = 'error while scraping'
         corona = [text]
 
+    corona:list = corona
 
+    arr = corona[1:5:2]
+    arr2 = corona[6::2]
+    corona_test = []
+    for arr3 in zip(arr, arr2):
+        corona_test.append(f'{arr3[0]} {arr3[1]}')
+
+    corona_test.insert(2, corona[5])
+    corona_test.insert(0, corona[0])
     corona.insert(0, 'Stand in Deutschland')
     new_msg = '\n'.join(corona)
     if msg_de != new_msg:
@@ -90,8 +99,8 @@ async def update_corona():
                 await channel.send(new_msg)
         msg_de = new_msg
 
-    print(msg_at)
-    print(msg_de)
+    print(msg_at, flush=True)
+    print(msg_de, flush=True)
 
     driver.quit()
 
@@ -131,7 +140,7 @@ async def on_message(message):
 
     elif message.content.startswith('!corona'):
         await message.channel.send(msg_at)
-        await message.channel.send(msg_de)
+        await message.channel.send(f'\n{msg_de}')
 
 
 @client.event
