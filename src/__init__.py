@@ -91,6 +91,7 @@ async def update_corona():
 
     corona_test.insert(2, corona[5])
     corona_test.insert(0, corona[0])
+    corona = corona_test
     corona.insert(0, 'Stand in Deutschland')
     new_msg = '\n'.join(corona)
     if msg_de != new_msg:
