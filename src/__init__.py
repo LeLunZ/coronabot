@@ -30,14 +30,15 @@ async def update_corona():
     chrome_options.add_argument('--disable-gpu')
     user_agent = ua.random
     chrome_options.add_argument(f'user-agent={user_agent}')
-    driver = webdriver.Chrome(chrome_options=chrome_options)
-    driver.get("https://info.gesundheitsministerium.at")
+    driver = webdriver.Chrome(options=chrome_options)
     try:
+        driver.get("https://info.gesundheitsministerium.at")
         element = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, 'divErkrankungen'))
         )
         text = element.text
     except:
+        print('error austria', flush=True)
         text = 'error while scraping'
 
     corona = ['Stand in Österreich', f'Bestätigte Fälle: {text}']
@@ -48,25 +49,29 @@ async def update_corona():
             if 'at' in channel_list[channel]:
                 await channel.send(new_msg)
         msg_at = new_msg
-    url_bmbwf = 'https://www.bmbwf.gv.at/Themen/Hochschule-und-Universität/Aktuelles/corona.html'
-    url_bmbwf2 = 'https://www.bmbwf.gv.at/Themen/schule/beratung/corona.html'
-    school_corona_page = html.fromstring(requests.get(
-        url_bmbwf).content)
-    school_infos = school_corona_page.xpath('//main/ul/li/a/@href|//main/ul/li/a/text()')
-
-    school_corona_page = html.fromstring(requests.get(
-        url_bmbwf2).content)
-    school_infos.extend(school_corona_page.xpath('//main/ul/li/a/@href|//main/ul/li/a/text()'))
-    for i in range(0, len(school_infos), 2):
-        if (school_infos[i], school_infos[i + 1]) not in school_infos_tuple_list:
-            for channel in channel_list:
-                if 'at' in channel_list[channel]:
-                    await channel.send(f'{school_infos[i + 1]}: \n{url_raw_bmbwf + school_infos[i]}')
-            school_infos_tuple_list.append((school_infos[i], school_infos[i + 1]))
-
-    url_rki = 'https://corona.rki.de/'
-    driver.get(url_rki)
     try:
+        url_bmbwf = 'https://www.bmbwf.gv.at/Themen/Hochschule-und-Universität/Aktuelles/corona.html'
+        url_bmbwf2 = 'https://www.bmbwf.gv.at/Themen/schule/beratung/corona.html'
+        school_corona_page = html.fromstring(requests.get(
+            url_bmbwf).content)
+        school_infos = school_corona_page.xpath('//main/ul/li/a/@href|//main/ul/li/a/text()')
+
+        school_corona_page = html.fromstring(requests.get(
+            url_bmbwf2).content)
+        school_infos.extend(school_corona_page.xpath('//main/ul/li/a/@href|//main/ul/li/a/text()'))
+        for i in range(0, len(school_infos), 2):
+            if (school_infos[i], school_infos[i + 1]) not in school_infos_tuple_list:
+                for channel in channel_list:
+                    if 'at' in channel_list[channel]:
+                        await channel.send(f'{school_infos[i + 1]}: \n{url_raw_bmbwf + school_infos[i]}')
+                school_infos_tuple_list.append((school_infos[i], school_infos[i + 1]))
+    except:
+        print('error austria2', flush=True)
+
+
+    try:
+        url_rki = 'https://corona.rki.de/'
+        driver.get(url_rki)
         element = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, '//iframe[@class="iframe-widget_1"]'))
         )
@@ -76,28 +81,27 @@ async def update_corona():
             EC.presence_of_all_elements_located((By.XPATH, '//*[name()="svg"]/*[name()="g"][2]/*[name()="svg"]/*[name()="text"]'))
         )
         corona = [e.text for e in element]
+        arr = corona[1:4:2]
+        arr2 = corona[2:5:2]
+        corona_test = []
+        for arr3 in zip(arr, arr2):
+            corona_test.append(f'{arr3[0]} {arr3[1]}')
+
+        arr = corona[6:-1:2]
+        arr2 = corona[7::2]
+        for arr3 in zip(arr, arr2):
+            corona_test.append(f'{arr3[0]} {arr3[1]}')
+
+        corona_test.insert(2, corona[5])
+        corona_test.insert(2, '')
+        corona_test.insert(0, corona[0])
+        corona = corona_test
     except:
-        traceback.print_exc()
+        print("error germany", flush=True)
         text = 'error while scraping'
         corona = [text]
 
-    corona:list = corona
 
-    arr = corona[1:4:2]
-    arr2 = corona[2:5:2]
-    corona_test = []
-    for arr3 in zip(arr, arr2):
-        corona_test.append(f'{arr3[0]} {arr3[1]}')
-
-    arr = corona[6:-1:2]
-    arr2 = corona[7::2]
-    for arr3 in zip(arr, arr2):
-        corona_test.append(f'{arr3[0]} {arr3[1]}')
-
-    corona_test.insert(2, corona[5])
-    corona_test.insert(2, '')
-    corona_test.insert(0, corona[0])
-    corona = corona_test
     corona.insert(0, 'Stand in Deutschland')
     new_msg = '\n'.join(corona)
     if msg_de != new_msg:
