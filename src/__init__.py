@@ -1,4 +1,3 @@
-import time
 import traceback
 
 import discord
@@ -11,6 +10,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from fake_useragent import UserAgent
+import logging
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.WARNING)
 
 TOKEN = ''
 
@@ -37,18 +40,17 @@ async def update_corona():
             EC.presence_of_element_located((By.ID, 'divErkrankungen'))
         )
         text = element.text
+        corona = ['Stand in Österreich', f'Bestätigte Fälle: {text}']
+        global msg_at, msg_de
+        new_msg = '\n'.join(corona)
+        if msg_at != new_msg:
+            for channel in channel_list:
+                if 'at' in channel_list[channel]:
+                    await channel.send(new_msg)
+            msg_at = new_msg
     except:
         print('error austria', flush=True)
-        text = 'error while scraping'
 
-    corona = ['Stand in Österreich', f'Bestätigte Fälle: {text}']
-    global msg_at, msg_de
-    new_msg = '\n'.join(corona)
-    if msg_at != new_msg:
-        for channel in channel_list:
-            if 'at' in channel_list[channel]:
-                await channel.send(new_msg)
-        msg_at = new_msg
     try:
         url_bmbwf = 'https://www.bmbwf.gv.at/Themen/Hochschule-und-Universität/Aktuelles/corona.html'
         url_bmbwf2 = 'https://www.bmbwf.gv.at/Themen/schule/beratung/corona.html'
@@ -96,22 +98,17 @@ async def update_corona():
         corona_test.insert(2, '')
         corona_test.insert(0, corona[0])
         corona = corona_test
+        global msg_at, msg_de
+        corona.insert(0, 'Stand in Deutschland')
+        new_msg = '\n'.join(corona)
+        if msg_de != new_msg:
+            for channel in channel_list:
+                if 'de' in channel_list[channel]:
+                    await channel.send(new_msg)
+            msg_de = new_msg
     except:
         print("error germany", flush=True)
-        text = 'error while scraping'
-        corona = [text]
 
-
-    corona.insert(0, 'Stand in Deutschland')
-    new_msg = '\n'.join(corona)
-    if msg_de != new_msg:
-        for channel in channel_list:
-            if 'de' in channel_list[channel]:
-                await channel.send(new_msg)
-        msg_de = new_msg
-
-    print(msg_at, flush=True)
-    print(msg_de, flush=True)
 
     driver.quit()
 
